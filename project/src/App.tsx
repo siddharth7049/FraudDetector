@@ -110,6 +110,7 @@ function ScoreGauge({ result }: { result: CheckResult }) {
 function ResultCard({ kind, result }: { kind: Kind; result: CheckResult }) {
   const style = LEVEL_STYLES[result.level];
   const isHigh = result.level === "HIGH";
+  const hasSignals = result.tier1Matches.length > 0 || result.tier2Matches.length > 0 || result.baseReasons.length > 0;
 
   return (
     <div className="rounded-[28px] border border-[#e3dfef] bg-white p-5 shadow-[0_18px_50px_rgba(38,27,87,0.08)] sm:p-7">
@@ -128,11 +129,10 @@ function ResultCard({ kind, result }: { kind: Kind; result: CheckResult }) {
       </div>
       <div className="mt-6 border-t border-[#ece9f3] pt-5">
         <h3 className="text-sm font-bold text-[#201b42]">Why this score</h3>
-        {result.reasons.length > 0 ? (
-          <ul className="mt-3 space-y-2.5">
-            {result.reasons.map((reason) => <li key={reason} className="flex items-start gap-2.5 text-sm text-[#5f5b72]"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#e29a26]" /><span>{reason}</span></li>)}
-          </ul>
-        ) : <p className="mt-2 text-sm text-[#686377]">None of the known red-flag patterns appeared in the text we could read.</p>}
+        {!hasSignals && <p className="mt-2 text-sm text-[#686377]">None of the known red-flag patterns appeared in the text we could read.</p>}
+        {result.tier1Matches.length > 0 && <div className="mt-4 rounded-2xl border border-[#f2c8c5] bg-[#fff3f1] p-4"><p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#b34d4a]">Tier 1 · immediate high risk</p><ul className="mt-2 space-y-1.5">{result.tier1Matches.map((match) => <li key={match} className="flex items-center gap-2 text-sm font-semibold text-[#6e302e]"><AlertTriangle className="h-4 w-4 shrink-0 text-[#c85e58]" />“{match}”</li>)}</ul></div>}
+        {result.tier2Matches.length > 0 && <div className="mt-3 rounded-2xl border border-[#f1dfb4] bg-[#fffaf0] p-4"><p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#9a6c1a]">Tier 2 · context-dependent caution</p><ul className="mt-2 flex flex-wrap gap-2">{result.tier2Matches.map((match) => <li key={match} className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#80601e] shadow-sm">{match}</li>)}</ul><p className="mt-2 text-xs leading-relaxed text-[#876f3e]">These words add only a small boost. They are not scams by themselves.</p></div>}
+        {result.baseReasons.length > 0 && <div className="mt-4"><p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#777287]">Other text signals</p><ul className="mt-2 space-y-2">{result.baseReasons.map((reason) => <li key={reason} className="flex items-start gap-2.5 text-sm text-[#5f5b72]"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#e29a26]" /><span>{reason}</span></li>)}</ul></div>}
       </div>
     </div>
   );
